@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <View android:id="@id/exo_controls_background" android:background="#04000000" android:layout_width="0.0dip" android:layout_height="0.0dip" />
+    <TextView android:textSize="30.0sp" android:textColor="@color/white" android:layout_gravity="top" android:id="@id/current_controls_channel" android:padding="30.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:shadowColor="@color/black" android:shadowDx="4.0" android:shadowDy="4.0" android:shadowRadius="5.0" />
+    <FrameLayout android:layout_gravity="bottom" android:id="@id/exo_bottom_bar" android:background="@color/exo_bottom_bar_background" android:layout_width="fill_parent" android:layout_height="@dimen/exo_styled_bottom_bar_height" android:layout_marginTop="@dimen/exo_styled_bottom_bar_margin_top" android:layoutDirection="ltr">
+        <LinearLayout android:layout_gravity="start|center" android:id="@id/exo_time" android:paddingLeft="@dimen/exo_styled_bottom_bar_time_padding" android:paddingRight="@dimen/exo_styled_bottom_bar_time_padding" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layoutDirection="ltr" android:paddingStart="@dimen/exo_styled_bottom_bar_time_padding" android:paddingEnd="@dimen/exo_styled_bottom_bar_time_padding">
+            <TextView android:id="@id/exo_position" style="@style/ExoStyledControls.TimeText.Position" />
+            <TextView style="@style/ExoStyledControls.TimeText.Separator" />
+            <TextView android:id="@id/exo_duration" style="@style/ExoStyledControls.TimeText.Duration" />
+        </LinearLayout>
+        <LinearLayout android:layout_gravity="end|center" android:id="@id/exo_basic_controls" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layoutDirection="ltr">
+            <ImageButton android:id="@id/exo_subtitle" android:background="@drawable/playback_buttons" style="@style/ExoStyledControls.Button.Bottom.CC" />
+            <ImageButton android:id="@id/exo_track_selection_view" android:background="@drawable/playback_buttons" style="@style/ExoStyledControls.Button.Bottom.QualityTrack" />
+            <ImageButton android:id="@id/exo_audio_track" android:background="@drawable/playback_buttons" style="@style/ExoStyledControls.Button.Bottom.AudioTrack" />
+            <androidx.mediarouter.app.MediaRouteButton android:id="@id/google_cast_button" android:background="@drawable/playback_buttons" android:visibility="gone" android:src="@drawable/google_cast" android:contentDescription="Google Cast" style="@style/ExoStyledControls.Button.Bottom" />
+            <ImageButton android:id="@id/exo_fullscreen" android:background="@drawable/playback_buttons" android:visibility="gone" style="@style/ExoStyledControls.Button.Bottom.FullScreen" />
+            <ImageButton android:id="@id/exo_vr" android:background="@drawable/playback_buttons" android:visibility="gone" style="@style/ExoStyledControls.Button.Bottom.VR" />
+            <ImageButton android:id="@id/exo_shuffle" android:background="@drawable/playback_buttons" style="@style/ExoStyledControls.Button.Bottom.Shuffle" />
+            <ImageButton android:id="@id/exo_repeat_toggle" android:background="@drawable/playback_buttons" android:visibility="gone" style="@style/ExoStyledControls.Button.Bottom.RepeatToggle" />
+            <ImageButton android:id="@id/exo_playback_speed" android:background="@drawable/playback_buttons" style="@style/ExoStyledControls.Button.Bottom.PlaybackSpeed" />
+            <ImageButton android:id="@id/exo_overflow_show" android:background="@drawable/playback_buttons" android:visibility="gone" style="@style/ExoStyledControls.Button.Bottom.OverflowShow" />
+        </LinearLayout>
+        <HorizontalScrollView android:layout_gravity="end|center" android:id="@id/exo_extra_controls_scroll_view" android:visibility="invisible" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <LinearLayout android:id="@id/exo_extra_controls" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layoutDirection="ltr">
+                <ImageButton android:id="@id/exo_overflow_hide" style="@style/ExoStyledControls.Button.Bottom.OverflowHide" />
+            </LinearLayout>
+        </HorizontalScrollView>
+    </FrameLayout>
+    <View android:layout_gravity="bottom" android:id="@id/exo_progress_placeholder" android:layout_width="fill_parent" android:layout_height="@dimen/exo_styled_progress_layout_height" android:layout_marginLeft="30.0dip" android:layout_marginRight="30.0dip" android:layout_marginBottom="@dimen/exo_styled_progress_margin_bottom" />
+    <LinearLayout android:gravity="center_vertical" android:layout_gravity="end|bottom|center" android:orientation="horizontal" android:id="@id/exo_minimal_controls" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/exo_styled_minimal_controls_margin_bottom" android:layoutDirection="ltr">
+        <ImageButton android:id="@id/exo_minimal_fullscreen" style="@style/ExoStyledControls.Button.Bottom.FullScreen" />
+    </LinearLayout>
+    <LinearLayout android:gravity="center" android:layout_gravity="center" android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <LinearLayout android:id="@id/extra_device_controls" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="18.0dip">
+            <ImageButton android:id="@id/volume_controls_button" android:background="@drawable/playback_buttons" android:src="@drawable/media3_icon_volume_up" android:onClick="showPlayerVolumeControls" android:contentDescription="Volume" android:layout_marginEnd="24.0dip" style="@style/ExoStyledControls.Button.Bottom" />
+            <ImageButton android:id="@id/brightness_controls_button" android:background="@drawable/playback_buttons" android:src="@drawable/brightness" android:onClick="showPlayerBrightnessControls" android:contentDescription="Brightness" style="@style/ExoStyledControls.Button.Bottom" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/exo_center_controls" android:background="@drawable/exo_controls_background" android:padding="@dimen/exo_styled_controls_padding" android:clipToPadding="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layoutDirection="ltr">
+            <ImageButton android:id="@id/exo_prev" android:background="@drawable/playback_buttons" android:focusable="true" android:layout_marginEnd="10.0dip" style="@style/ExoStyledControls.Button.Center.Previous" />
+            <FrameLayout android:background="@drawable/playback_buttons" android:addStatesFromChildren="true" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="10.0dip" style="@style/ExoStyledControls.Button.Center">
+                <Button android:id="@id/exo_rew_with_amount" android:background="@drawable/exo_styled_controls_rewind" android:layout_marginLeft="0.0dip" android:layout_marginRight="0.0dip" style="@style/ExoStyledControls.Button.Center.RewWithAmount" />
+            </FrameLayout>
+            <ImageButton android:id="@id/exo_play_pause" android:background="@drawable/playback_buttons" android:focusable="true" android:layout_marginEnd="10.0dip" style="@style/ExoStyledControls.Button.Center.PlayPause" />
+            <FrameLayout android:background="@drawable/playback_buttons" android:addStatesFromChildren="true" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="10.0dip" style="@style/ExoStyledControls.Button.Center">
+                <Button android:id="@id/exo_ffwd_with_amount" android:background="@drawable/exo_styled_controls_fastforward" android:layout_marginLeft="0.0dip" android:layout_marginRight="0.0dip" style="@style/ExoStyledControls.Button.Center.FfwdWithAmount" />
+            </FrameLayout>
+            <ImageButton android:id="@id/exo_next" android:background="@drawable/playback_buttons" android:focusable="true" style="@style/ExoStyledControls.Button.Center.Next" />
+        </LinearLayout>
+    </LinearLayout>
+    <ImageButton android:layout_gravity="end|center|top" android:id="@id/close_controls_button" android:background="@color/transparent" android:padding="12.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="10.0dip" android:src="@drawable/close" android:contentDescription="close controls button" />
+</merge>

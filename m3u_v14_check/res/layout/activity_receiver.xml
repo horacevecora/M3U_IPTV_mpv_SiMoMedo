@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:background="@android:color/black" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.media3.ui.PlayerView android:id="@id/player" android:background="@android:color/black" android:focusable="true" android:focusableInTouchMode="true" android:layout_width="fill_parent" android:layout_height="fill_parent" android:keepScreenOn="true" app:controller_layout_id="@layout/receiver_player_control_view" app:use_controller="true" />
+    <TextView android:textSize="30.0sp" android:textColor="@color/white" android:layout_gravity="top" android:id="@id/current_controls_channel" android:padding="30.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content" android:shadowColor="@color/black" android:shadowDx="4.0" android:shadowDy="4.0" android:shadowRadius="5.0" />
+</FrameLayout>

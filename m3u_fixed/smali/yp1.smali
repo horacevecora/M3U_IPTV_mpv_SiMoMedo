@@ -1,0 +1,71 @@
+.class public final Lyp1;
+.super Ljava/lang/Object;
+
+# interfaces
+.implements Lff0;
+
+
+# static fields
+.field public static final d:Ljava/lang/String;
+
+.field public static final e:Ljava/lang/String;
+
+.field public static final f:Ljava/lang/String;
+
+
+# instance fields
+.field public final a:I
+
+.field public final b:I
+
+.field public final c:I
+
+
+# direct methods
+.method static constructor <clinit>()V
+    .locals 2
+
+    sget-object v0, Lpu1;->a:Ljava/lang/String;
+
+    const/4 v0, 0x0
+
+    const/16 v1, 0x24
+
+    invoke-static {v0, v1}, Ljava/lang/Integer;->toString(II)Ljava/lang/String;
+
+    move-result-object v0
+
+    sput-object v0, Lyp1;->d:Ljava/lang/String;
+
+    const/4 v0, 0x1
+
+    invoke-static {v0, v1}, Ljava/lang/Integer;->toString(II)Ljava/lang/String;
+
+    move-result-object v0
+
+    sput-object v0, Lyp1;->e:Ljava/lang/String;
+
+    const/4 v0, 0x2
+
+    invoke-static {v0, v1}, Ljava/lang/Integer;->toString(II)Ljava/lang/String;
+
+    move-result-object v0
+
+    sput-object v0, Lyp1;->f:Ljava/lang/String;
+
+    return-void
+.end method
+
+.method public constructor <init>(III)V
+    .locals 0
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    iput p1, p0, Lyp1;->a:I
+
+    iput p2, p0, Lyp1;->b:I
+
+    iput p3, p0, Lyp1;->c:I
+
+    return-void
+.end method

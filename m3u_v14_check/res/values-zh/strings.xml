@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notLoadedWebViewHint">无法加载远程资源。请再试一次。</string>
+    <string name="quality">质量</string>
+    <string name="reload">重新加载</string>
+    <string name="request_file_access_permission_button">请求文件访问权限</string>
+    <string name="request_file_access_permission_hint">要访问本地播放列表，您必须首先允许文件访问</string>
+</resources>

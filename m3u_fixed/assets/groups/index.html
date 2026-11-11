@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="referrer" content="no-referrer" />
+	<title>M3U IPTV Editor</title>
+	<meta name="viewport" content="width=device-width, initial-scale=0.7">
+	<meta name="author" content="Jaroslav Herber - Herber eDevelopment">
+
+	<link rel="stylesheet" type="text/css" href="css/groups.css"/>
+	<script>var sAppVersion = '3.1.0', sDeviceFamily = 'Android', sView = 'groups';</script>
+	<style id="custom_theme"></style><style id="custom_styles"></style>
+
+	<script src="js/lang.js"></script>
+</head>
+<body id="body" class="android booting">
+	<div id='boot_loader' class="fullscreen">
+		<div id="boot_status"></div>
+	</div>
+
+	<div id="editor_closer" class="close-button" onclick="closeGroupsEditor()"></div>
+	<div id="editor_back" onclick="goBack()"><div class="back-button"></div></div>
+
+	<div id="channel_input"></div>
+
+	<div id="modal" class="fullscreen-blur" onclick="hideModal();">
+		<div id="modal_content" class="fullscreen-popup fullscreen-center custom-scrollbar"></div>
+	</div>
+
+	<div id="input_editor" class="fullscreen-blur">
+		<div id="input_editor_form" class="fullscreen-popup"></div>
+	</div>
+
+	<div id="editor">
+
+		<!--h2 id="list_headline"></h2-->
+		<p id="breadcrumb"><span class="bread-path-first i18n" data-langid="pickPlaylist">Pick a playlist to start</span></p>
+
+		<div id="groups_editor" class="fullscreen">
+			<div class="nav-closer close-button" onclick="goBack();"></div>
+			<ul id="groups_editor_nav" class="settings-nav list-editor list-container" data-top="groups">
+				<li id="group_name_item" class="select" data-type="input" data-name="group-name" data-saveaction="save-group-name">
+					<span class="i18n" data-langid="groupName">Group name</span>
+					<p id="current_group_name"></p>
+				</li>
+				<li id="hide_group_item" class="checkbox" data-type="checkbox" data-name="hide-group" data-value="on" data-savecallback="save-hide-group">
+					<span class="i18n" data-langid="hideGroup">Hide group</span>
+					<div class="switch"><div class="slider round"></div></div>
+				</li>
+				<!--li class="checkbox" data-type="checkbox" data-name="rearrange-channels" data-value="on">
+					<span class="i18n" data-langid="rearrange-channels">Rearrange channel numbers</span>
+					<div class="switch"><div class="slider round"></div></div>
+				</li-->
+				<li id="protect_group_item" class="checkbox" data-type="checkbox" data-name="protect-group" data-value="on" data-savecallback="save-protect-group">
+					<span class="i18n" data-langid="protectGroup">Protect group</span>
+					<div class="switch"><div class="slider round"></div></div>
+				</li>
+				<li id="group_password_item" data-type="input" data-name="group-password" data-saveaction="save-group-password">
+					<span class="i18n" data-langid="customPassword">Custom password</span>
+					<p id="current_group_password"></p>
+				</li>
+			</ul>
+		</div>
+
+		<div id="favs_editor" class="fullscreen">
+			<div class="nav-closer close-button" onclick="goBack();"></div>
+			<ul id="favs_editor_nav" class="settings-nav list-editor list-container" data-top="favs">
+				<li id="fav_name_item" class="select" data-type="input" data-name="fav-name" data-saveaction="save-fav-name">
+					<span class="i18n" data-langid="favName">Favorite group name</span>
+					<p id="current_fav_name"></p>
+				</li>
+				<li id="fav_channels_item" data-name="fav-edit-channels" data-action="add-fav-channels">
+					<span class="i18n" data-langid="addChannels">Add channels</span>
+				</li>
+				<li id="fav_channels_order_item" data-name="fav-edit-channel-order" data-action="edit-fav-channel-order">
+					<span class="i18n" data-langid="editChannelOrder">Edit channel order</span>
+				</li>
+				<!--li class="checkbox" data-type="checkbox" data-name="rearrange-channels" data-value="on">
+					<span class="i18n" data-langid="rearrange-channels">Rearrange channel numbers</span>
+					<div class="switch"><div class="slider round"></div></div>
+				</li-->
+				<li id="protect_fav_item" class="checkbox" data-type="checkbox" data-name="protect-fav" data-value="on" data-savecallback="save-protect-fav">
+					<span class="i18n" data-langid="protectFav">Protect favorite group</span>
+					<div class="switch"><div class="slider round"></div></div>
+				</li>
+				<li id="fav_password_item" data-type="input" data-name="fav-password" data-saveaction="save-fav-password">
+					<span class="i18n" data-langid="customPassword">Custom password</span>
+					<p id="current_fav_password"></p>
+				</li>
+				<li id="delete_fav_item" class="checkbox" data-type="checkbox" data-name="delete-fav" data-value="on" data-savecallback="delete-fav">
+					<span class="i18n" data-langid="delete">Delete</span>
+				</li>
+				<li id="fav_save_item" data-name="fav-save" data-action="save-fav">
+					<span class="i18n" data-langid="save">Save</span>
+				</li>
+			</ul>
+		</div>
+
+		<div id="globalfavs_editor" class="fullscreen">
+			<div class="nav-closer close-button" onclick="goBack();"></div>
+			<ul id="globalfav_playlists_nav" class="settings-nav list-editor list-container" style="display: none;"></ul>
+			<ul id="globalfavs_editor_nav" class="settings-nav list-editor list-container" data-top="top">
+				<li id="globalfav_channels_item" data-name="fav-edit-channels" data-action="add-globalfav-channels">
+					<span class="i18n" data-langid="addChannels">Add channels</span>
+				</li>
+				<li id="globalfav_channels_order_item" data-name="fav-edit-channel-order" data-action="edit-globalfav-channel-order">
+					<span class="i18n" data-langid="editChannelOrder">Edit channel order</span>
+				</li>
+			</ul>
+		</div>
+
+		<div id="settings_container" class="list-container">
+
+			<div id="settings_list">
+
+				<ul id="top_nav" class="settings-nav">
+					<!-- add playlists here -->
+					<li class="svg-icon icon-globalfav i18n" data-action="edit-globalfavs" data-langid="globalFavorites">Global favorites</li>
+					<li class="padded-item svg-icon icon-settings i18n" data-action="open-settings" data-langid="editPlaylistSettings">Edit playlists (Settings)</li>
+				</ul>
+
+				<ul id="editor_type_nav" class="settings-nav" data-top="top">
+					<li class="i18n" data-action="edit-favs" data-open="favs" data-langid="favs">Favorites</li>
+					<li class="i18n" data-action="edit-groups" data-open="groups" data-langid="groups">Groups</li>
+					<li class="i18n" data-action="move-channels" data-langid="moveChannels">Move channels</li>
+					<li class="i18n" data-action="edit-recently-watched" data-open="recently_watched" data-langid="recently_watched">Recently watched channels</li>
+					<!--li data-action="edit-channels" data-open="channels">Channels</li-->
+				</ul>
+
+				<ul id="channels_nav" class="settings-nav" data-top="editor_type">
+					<li class="i18n" data-action="channel-move" data-langid="moveChannels">Move channels</li>
+					<li class="i18n" data-action="channel-protect" data-langid="protectChannels">Protect channels</li>
+					<li class="i18n" data-action="channel-delete" data-langid="deleteChannels">Delete channels</li>
+				</ul>
+
+				<ul id="groups_nav" class="settings-nav" data-top="editor_type">
+					<!--li data-action="add-group">
+						<span class="icon icon-add">+</span><span class="i18n" data-langid="add-group">Add group</span>
+					</li-->
+				</ul>
+
+				<ul id="recently_watched_nav" class="settings-nav" data-top="editor_type">
+					<li id="recently_watched_item" class="checkbox" data-type="checkbox" data-name="enable" data-value="on" data-savecallback="enable-recently-watched">
+						<span class="i18n" data-langid="enableRecentylWatched">Enable recently watched channels</span>
+						<div class="switch"><div class="slider round"></div></div>
+					</li>
+					<li id="recently_watched_channels_item" data-type="number" data-name="max" data-saveaction="save-recently-watched-max">
+						<span class="i18n" data-langid="recentlyWatchedChannels">Number of channels to keep</span>
+						<p id="current_recently_watched_channels">10</p>
+					</li>
+				</ul>
+
+				<ul id="favs_nav" class="settings-nav" data-top="editor_type">
+					<li data-action="add-favs">
+						<span class="icon icon-add">+</span> <span class="i18n" data-langid="newFavGroup">New favorite group</span>
+					</li>
+					<li id="add_legay_favs" data-action="add-legacy-favs">
+						<span class="icon icon-add">+</span> <span class="i18n" data-langid="importFromGlobalFavs">Create from global favorites</span>
+					</li>
+				</ul>
+
+				<ul id="global_favs_nav" class="settings-nav" data-top="top">
+
+				</ul>
+
+				<div class="list" id="playlists_list"></div>
+				<div class="list" id="groups_list"></div>
+				<div class="list" id="favs_list"></div>
+
+			</div>
+		</div>
+
+		<div id="channel_list_container" class="fullscreen">
+			<div class="nav-closer close-button" onclick="goBack();"></div>
+			<div class="fullscreen-content">
+				<div id="channel_list_search">
+					<input id="search_field" class="i18nPlaceholder" data-langid="searchFocus" maxlength="14" type="search" oninput="searchChannels(this.value);" value="" placeholder="search" tabindex="-1">
+				</div>
+				<div id="channel_list" data-top="favs" class="custom-scrollbar" onscroll="channelScrollEvent()">
+					<ul id="channel_list_ul"></ul>
+				</div>
+				<div id="move_bar"><button type="button" onclick="moveChannelBtn(-1)">&#9650;</button><button type="button" onclick="moveChannelBtn(1)">&#9660;</button><button type="button" class="ok" onclick="moveChannelBtn(0)">&#10003;</button></div>
+			</div>
+		</div>
+
+	</div>
+
+	<!--div id="context_menu" class="fullscreen">
+		<div class="fullscreen-background" onclick="hideContextMenu();"></div>
+		<div class="context-menu fullscreen-popup fullscreen-center">
+			<div id="context_headline"><div id="context_channel_headline"><span class="list-ch">1</span> <span id="context_menu_title" onclick="showRenameInput(0);" class="list-title">Channel name</span><div class="nav_logo"></div></div></div>
+			<div class="HR"></div>
+			<ul id="context_channel_nav">
+				<li id="context-rename" class="i18n selected" data-langid="context-rename">Rename</li>
+				<li id="context-move" class="i18n" data-langid="context-move">Move</li>
+				<li id="context-add-fav" class="i18n" data-langid="channelSettingFavs">Add to Favorites</li>
+				<li id="context-protect" class="i18n" data-langid="context-protect">Protect</li>
+				<li id="context-delete" class="i18n" data-langid="context-delete">Delete</li>
+			</ul>
+		</div>
+	</div-->
+
+	<script type='text/javascript' src="../js/functions.js"></script>
+	<script type='text/javascript' src="js/settings.js"></script>
+	<script type='text/javascript' src="js/controls.js"></script>
+	<script type='text/javascript' src="js/groups.js"></script>
+
+	<div id="js_updates" style="display: none"></div>
+	<script>
+		try {
+			AppSettings.init();
+			bootGroupsView();
+		} catch( e ) { console.log(e); }
+	</script>
+
+</body>
+</html>

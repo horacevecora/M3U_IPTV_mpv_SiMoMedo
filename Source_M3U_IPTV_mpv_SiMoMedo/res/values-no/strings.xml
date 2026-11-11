@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notLoadedWebViewHint">Kunne ikke laste eksterne ressurser. Vennligst prøv igjen.</string>
+    <string name="quality">Kvalitet</string>
+    <string name="reload">Last inn på nytt</string>
+    <string name="request_file_access_permission_button">Be om tillatelse for filtilgang</string>
+    <string name="request_file_access_permission_hint">For å kunne få tilgang til lokale spillelister, må du først tillate filtilgang.</string>
+</resources>

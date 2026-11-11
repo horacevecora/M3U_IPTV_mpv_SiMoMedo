@@ -1,0 +1,5 @@
+.class public interface abstract Lf70;
+.super Ljava/lang/Object;
+
+# interfaces
+.implements Lg70;

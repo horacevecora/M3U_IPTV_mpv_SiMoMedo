@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@id/rootLayout" android:background="@color/black" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.media3.ui.PlayerView android:id="@id/player" android:background="@android:color/black" android:focusable="false" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" android:keepScreenOn="true" app:use_controller="false" />
+    <ProgressBar android:id="@id/loader" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="100.0dip" style="@android:style/Widget.Holo.Light.ProgressBar.Large" />
+    <FrameLayout android:id="@id/m3uWebViewContainer" android:background="@android:color/transparent" android:layout_width="fill_parent" android:layout_height="fill_parent" />
+    <androidx.media3.ui.PlayerControlView android:id="@id/customPlaybackControls" android:focusable="true" android:focusableInTouchMode="true" android:visibility="gone" android:clickable="true" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_alignParentBottom="true" android:hapticFeedbackEnabled="true" android:outlineSpotShadowColor="@color/black" android:outlineAmbientShadowColor="@color/cardview_light_background" app:controller_layout_id="@layout/exo_styled_player_control_view" app:show_subtitle_button="true" />
+    <LinearLayout android:gravity="center" android:orientation="vertical" android:id="@id/loaderHint" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <TextView android:id="@id/loaderStateHint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" android:text="@string/notLoadedWebViewHint" android:textAlignment="center" />
+        <Button android:id="@id/reloadButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/reload" />
+    </LinearLayout>
+    <ProgressBar android:id="@id/progressBar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerHorizontal="true" android:layout_centerVertical="true" style="?android:progressBarStyleLarge" />
+    <LinearLayout android:gravity="center" android:layout_gravity="center" android:id="@id/volume_controls" android:background="@android:color/transparent" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <LinearLayout android:gravity="center" android:background="@drawable/exo_controls_background" android:padding="16.0dip" android:layout_width="320.0dip" android:layout_height="wrap_content" android:maxWidth="400.0dip" android:minWidth="320.0dip" android:onClick="preventClick">
+            <SeekBar android:id="@id/volume_slider" android:padding="10.0dip" android:focusable="true" android:focusableInTouchMode="true" android:layout_width="0.0dip" android:layout_height="wrap_content" android:maxWidth="400.0dip" android:max="100" android:progress="50" android:minWidth="320.0dip" android:layout_weight="0.8" android:progressTint="@color/white" android:progressBackgroundTint="@color/button_focus" android:backgroundTint="@color/white" android:thumbTint="@color/white" />
+            <ImageView android:padding="8.0dip" android:layout_width="38.0dip" android:layout_height="38.0dip" android:src="@drawable/media3_icon_volume_up" android:contentDescription="Volume" style="@style/ExoStyledControls.Button.Bottom" />
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout android:gravity="center" android:layout_gravity="center" android:id="@id/brightness_controls" android:background="@android:color/transparent" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <LinearLayout android:gravity="center" android:background="@drawable/exo_controls_background" android:padding="16.0dip" android:layout_width="320.0dip" android:layout_height="wrap_content" android:maxWidth="400.0dip" android:minWidth="320.0dip" android:onClick="preventClick">
+            <SeekBar android:id="@id/brightness_slider" android:padding="10.0dip" android:focusable="true" android:focusableInTouchMode="true" android:layout_width="0.0dip" android:layout_height="wrap_content" android:maxWidth="400.0dip" android:max="100" android:progress="50" android:minWidth="320.0dip" android:layout_weight="0.8" android:progressTint="@color/white" android:progressBackgroundTint="@color/button_focus" android:backgroundTint="@color/white" android:thumbTint="@color/white" />
+            <ImageView android:padding="8.0dip" android:layout_width="38.0dip" android:layout_height="38.0dip" android:src="@drawable/brightness" android:contentDescription="Brightness" style="@style/ExoStyledControls.Button.Bottom" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>
