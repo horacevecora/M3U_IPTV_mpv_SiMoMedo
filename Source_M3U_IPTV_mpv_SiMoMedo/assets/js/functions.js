@@ -827,6 +827,42 @@ function setBootStatusText( sText ) {
 }
 
 
+// ---------------------------------------------------------------------------
+// Loading spinner (boot overlay) control + global watchdog
+// ---------------------------------------------------------------------------
+
+function showLoading() {
+	if( document.body ) { document.body.classList.add('booting'); }
+	startBootWatchdog();
+}
+
+function hideLoading() {
+	stopBootWatchdog();
+	if( document.body ) { document.body.classList.remove('booting'); }
+	var oBootLoader = getEl('boot_loader');
+	if( oBootLoader ) { oBootLoader.style.display = 'none'; }
+}
+
+// Global loading spinner watchdog: forces the boot overlay off after 1500ms
+// so the UI can never stay stuck on a black loading screen, no matter what
+// hangs or throws during boot, playlist load, DB init or network requests.
+var iBootWatchdog = 0;
+
+function stopBootWatchdog() {
+	if( iBootWatchdog ) { clearTimeout(iBootWatchdog); iBootWatchdog = 0; }
+}
+
+function startBootWatchdog() {
+	stopBootWatchdog();
+	iBootWatchdog = setTimeout(function() {
+		iBootWatchdog = 0;
+		if( document.body && document.body.classList.contains('booting') ) {
+			document.body.classList.remove('booting');
+		}
+		if( typeof hideLoading === 'function' ) { hideLoading(); }
+	}, 1500);
+}
+
 /*
 // Database
 	bDbInitiated:
@@ -838,6 +874,7 @@ function setBootStatusText( sText ) {
 function initDb( sOnSuccess, sOnFailure ) {
 
 	if( bDbInitiated > 0 ) {
+		if( typeof(sOnSuccess) === 'function' ) { sOnSuccess(); }
 		return bDbInitiated;
 	}
 
@@ -1599,3 +1636,7 @@ function sortByFavPositions( aBuffer, aFavChannels ) {
 	return aBuffer;
 
 }
+
+// Start the global loading-spinner watchdog as a final backstop on every page
+// that loads functions.js, so the boot overlay can never stay stuck forever.
+startBootWatchdog();

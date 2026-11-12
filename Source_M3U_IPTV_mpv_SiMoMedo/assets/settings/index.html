@@ -198,6 +198,23 @@
 		<div id="input_editor_form" class="fullscreen-popup"></div>
 	</div>
 
+	<div id="mpv_conf_editor" class="fullscreen-blur">
+		<div class="fullscreen-popup fullscreen-center custom-scrollbar" style="max-width: 900px; width: 92%; max-height: 85vh;">
+			<h2 class="i18n" data-langid="edit-mpv-conf">Edit mpv.conf</h2>
+			<textarea id="mpv_conf_textarea" class="mpv-conf-textarea" spellcheck="false" style="width: 100%; height: 44vh; font-family: monospace, monospace; font-size: 13px; padding: 10px; box-sizing: border-box; user-select: text !important; -webkit-user-select: text !important;"></textarea>
+			<input id="mpv_conf_file_picker" type="file" class="HIDDEN" accept=".conf,.txt" oninput="mpvConfFilePickerHandler(this);">
+			<div class="button-row" style="margin-top: 12px; display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap;">
+				<button class="round-button button-back" onclick="closeMpvConfEditor()"><svg height="30" width="30"><use href="../images/icons.svg#prev" height="30" width="30" /></svg></button>
+				<button onclick="mpvConfClearLines()" style="flex: 0 0 auto;">Clear Lines</button>
+				<button onclick="openMpvConfFilePicker()" style="flex: 0 0 auto;">IMPORT FILE</button>
+				<button onclick="selectAllMpvConf()" style="flex: 0 0 auto;">SELECT ALL</button>
+				<button onclick="copyMpvConf()" style="flex: 0 0 auto;">COPY</button>
+				<button onclick="pasteMpvConf()" style="flex: 0 0 auto;">PASTE</button>
+				<button onclick="saveMpvConfEditor()" style="flex: 0 0 auto;">SAVE</button>
+			</div>
+		</div>
+	</div>
+
 	<div id="playlist_companion" class="fullscreen-blur">
 		<div class="fullscreen-popup fullscreen-center ALIGNCENTER" style="max-width: 80%; top: 50%;">
 			<div id="playlist_companion_loader"></div>

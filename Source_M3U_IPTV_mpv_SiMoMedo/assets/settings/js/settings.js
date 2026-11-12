@@ -849,8 +849,19 @@ function loadEverything() {
 	localStorage.removeItem('bReadyForPlay'); // Is set if at least one playlist is loaded and ready
 	localStorage.removeItem('deviceStartup');
 
-	if( window.location.hash ) {
-		sCurrentNavId = window.location.hash.replace('#', '');
+	try {
+		if( window.location.hash ) {
+			sCurrentNavId = window.location.hash.replace('#', '');
+		}
+
+		// V41: Strict retention of add_playlist_nav when settings hash is #add_playlist
+		// Prevent any fallback to main_nav / root settings list
+		if( sCurrentNavId === 'add_playlist' ) {
+			sCurrentNavId = 'add_playlist';
+		}
+	} catch( e ) {
+		console.error(e);
+		sCurrentNavId = 'add_playlist';
 	}
 
 	initDb(function() { // DB successfully loaded, load playlists next
@@ -863,11 +874,30 @@ function loadEverything() {
 			}
 
 			document.body.classList.remove('booting');
+			// V41: Force add_playlist navigation, prevent main_nav fallback
+			if( sCurrentNavId === 'add_playlist' || window.location.hash.indexOf('add_playlist') > -1 ) {
+				sCurrentNavId = 'add_playlist';
+			}
+			openNavList(sCurrentNavId);
+			bBootComplete = true;
+		}, function() { // playlist load failure - still proceed to show UI
+			document.body.classList.remove('booting');
+			// V41: Force add_playlist navigation on failure path too
+			if( sCurrentNavId === 'add_playlist' || window.location.hash.indexOf('add_playlist') > -1 ) {
+				sCurrentNavId = 'add_playlist';
+			}
 			openNavList(sCurrentNavId);
 			bBootComplete = true;
 		});
-	}, function(oEv) { // DB failure
+	}, function(oEv) { // DB failure - still proceed to show UI
 		console.log("Error boot DB");
+		document.body.classList.remove('booting');
+		// V41: Force add_playlist navigation on DB failure too
+		if( sCurrentNavId === 'add_playlist' || window.location.hash.indexOf('add_playlist') > -1 ) {
+			sCurrentNavId = 'add_playlist';
+		}
+		openNavList(sCurrentNavId);
+		bBootComplete = true;
 	});
 }
 

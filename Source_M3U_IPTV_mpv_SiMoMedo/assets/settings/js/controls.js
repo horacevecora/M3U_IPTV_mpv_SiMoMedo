@@ -1,4 +1,4 @@
-/*
+﻿/*
 
 	Copyright 2026 - Herber eDevelopment - Jaroslav Herber
 	All rights reserved.
@@ -16,7 +16,17 @@ iCurrentPlaylistId = 0, bModalOpened = false, bStatusOpened = false,
 
 oPlaylistManager = getEl('playlist_manager'), oCurrentPmForm = false,
 aCurrentFields = false, iCurrentFieldIndex = 0, iCurrentPmStep = 0,
-aControlButtons = false, iCurrentControlButtonIndex = 2;
+aControlButtons = false, iCurrentControlButtonIndex = 2,
+
+// V40: lock to suppress keydown/click events bleeding through from welcome screen
+// navigation when opening settings/#add_playlist
+iWelcomeNavLock = 0;
+
+// Initialize welcome navigation lock from sessionStorage (set by welcome screen before navigating)
+if( sessionStorage.getItem('welcomeNavLock') ) {
+	sessionStorage.removeItem('welcomeNavLock');
+	iWelcomeNavLock = Date.now() + 500; // suppress events for 500ms
+}
 
 function doKey( iKeyCode ) {
 	document.dispatchEvent(new KeyboardEvent('keydown', {'keyCode': iKeyCode}));
@@ -63,6 +73,9 @@ function saveCallback( sAction, sValue ) {
 				remoteSetAdsConsent(sValue === 'on');
 			}
 			break;
+		case 'mpv-conf-editor-open':
+			openMpvConfEditor();
+			break;
 		case 'disable-https':
 			if( sValue === 'on' ) {
 				localStorage.setItem('bDisableHttps', 1);
@@ -78,6 +91,217 @@ function saveCallback( sAction, sValue ) {
 }
 
 
+
+// ---- MPV Conf Editor ----
+var bMpvConfEditorActive = false;
+
+function openMpvConfEditor() {
+	var sMpvConf = null;
+	var sSavedFlag = localStorage.getItem('mpv_conf_saved');
+	if( sSavedFlag === 'true' ) {
+		var sStored = localStorage.getItem('mpv_conf');
+		if( sStored !== null ) {
+			sMpvConf = sStored;
+		} else if( window.m3uConnector && typeof m3uConnector.getMpvConf === 'function' ) {
+			var sConnector = m3uConnector.getMpvConf();
+			sMpvConf = (sConnector === null || sConnector === undefined) ? '' : sConnector;
+		}
+	} else {
+	sMpvConf = `#vo=mediacodec_embed    # Amlogic CPU #
+#hwdec=mediacodec       # تفعيل فك التشفير العتادي القياسي للأندرويد #`;
+	}
+	var oEditor = getEl('mpv_conf_editor');
+	var oTextarea = getEl('mpv_conf_textarea');
+	oTextarea.value = sMpvConf;
+	oEditor.style.display = 'block';
+	bMpvConfEditorActive = true;
+	sActiveControl = 'mpv-conf-editor';
+	setTimeout(function() { oTextarea.focus(); }, 50);
+
+}
+
+function closeMpvConfEditor() {
+
+	var oEditor = getEl('mpv_conf_editor');
+	if( oEditor ) { oEditor.style.display = 'none'; }
+	bMpvConfEditorActive = false;
+	sActiveControl = 'list';
+
+}
+
+// Move caret one line up/down inside a multiline textarea (same column when possible).
+// Used for D-pad Up/Down navigation while editing mpv.conf.
+function moveTextareaCaretLine( oTextarea, iDir ) {
+
+	if( !oTextarea || typeof oTextarea.selectionStart !== 'number' ) { return; }
+
+	var sValue = oTextarea.value, iPos = oTextarea.selectionStart;
+
+	// start of the current line and cursor column within it
+	var iLineStart = sValue.lastIndexOf('\n', iPos - 1) + 1;
+	var iCol = iPos - iLineStart;
+
+	// end of the current line (position of the following '\n' or string length)
+	var iLineEnd = sValue.indexOf('\n', iPos);
+	if( iLineEnd === -1 ) { iLineEnd = sValue.length; }
+
+	var iNewPos;
+	if( iDir < 0 ) {
+		// ArrowUp: previous line
+		if( iLineStart === 0 ) {
+			iNewPos = iPos; // already on first line - stay
+		} else {
+			var iPrevLineStart = sValue.lastIndexOf('\n', iLineStart - 2) + 1;
+			var iPrevLineEnd = iLineStart - 1; // '\n' that ends previous line (exclusive)
+			iNewPos = iPrevLineStart + iCol;
+			if( iNewPos > iPrevLineEnd ) { iNewPos = iPrevLineEnd; }
+		}
+	} else {
+		// ArrowDown: next line
+		if( iLineEnd === sValue.length ) {
+			iNewPos = iPos; // already on last line - stay
+		} else {
+			var iNextLineStart = iLineEnd + 1;
+			var iNextLineEnd = sValue.indexOf('\n', iNextLineStart);
+			if( iNextLineEnd === -1 ) { iNextLineEnd = sValue.length; }
+			iNewPos = iNextLineStart + iCol;
+			if( iNewPos > iNextLineEnd ) { iNewPos = iNextLineEnd; }
+		}
+	}
+
+	oTextarea.setSelectionRange(iNewPos, iNewPos);
+
+	// V42: Auto-scroll caret line into view when text exceeds visible height
+	var aLines = sValue.split('\n'), iLineCount = aLines.length || 1,
+		iLineHeight = oTextarea.scrollHeight / iLineCount,
+		iCharOffset = 0, iTargetLineIndex = 0;
+	for( var iLine = 0; iLine < aLines.length; iLine++ ) {
+		iCharOffset += aLines[iLine].length + 1; // +1 for the '\n'
+		if( iNewPos <= iCharOffset ) {
+			iTargetLineIndex = iLine;
+			break;
+		}
+	}
+	var iCaretTop = iTargetLineIndex * iLineHeight;
+	var iCaretBottom = (iTargetLineIndex + 1) * iLineHeight;
+	if( iCaretTop < oTextarea.scrollTop ) {
+		oTextarea.scrollTop = iCaretTop;
+	} else if( iCaretBottom > oTextarea.scrollTop + oTextarea.clientHeight ) {
+		oTextarea.scrollTop = iCaretBottom - oTextarea.clientHeight;
+	}
+
+}
+
+function selectAllMpvConf() {
+
+	var oTextarea = getEl('mpv_conf_textarea');
+	if( oTextarea && document.activeElement === oTextarea ) {
+		oTextarea.select();
+	}
+
+}
+
+function copyMpvConf() {
+
+	var oTextarea = getEl('mpv_conf_textarea');
+	if( !oTextarea || document.activeElement !== oTextarea ) { return; }
+
+	var sText = oTextarea.value;
+	if( oTextarea.selectionStart !== oTextarea.selectionEnd ) {
+		sText = sText.substring(oTextarea.selectionStart, oTextarea.selectionEnd);
+	}
+
+	try {
+		navigator.clipboard.writeText(sText).then(function() {
+			showStatus('Copied to clipboard!', 2000);
+		}, function() {
+			document.execCommand('copy');
+			showStatus('Copied to clipboard!', 2000);
+		});
+	} catch( e ) {
+		document.execCommand('copy');
+		showStatus('Copied to clipboard!', 2000);
+	}
+
+}
+
+function pasteMpvConf() {
+
+	var oTextarea = getEl('mpv_conf_textarea');
+	if( !oTextarea || document.activeElement !== oTextarea ) { return; }
+
+	try {
+		navigator.clipboard.readText().then(function(sText) {
+			var iStart = oTextarea.selectionStart, iEnd = oTextarea.selectionEnd;
+			oTextarea.value = oTextarea.value.substring(0, iStart) + sText + oTextarea.value.substring(iEnd);
+			oTextarea.setSelectionRange(iStart + sText.length, iStart + sText.length);
+			oTextarea.focus();
+			showStatus('Pasted from clipboard!', 2000);
+		}, function() {
+			showStatus('Clipboard access denied.', 2000);
+		});
+	} catch( e ) {
+		showStatus('Clipboard access denied.', 2000);
+	}
+
+}
+
+function saveMpvConfEditor() {
+
+	var oTextarea = getEl('mpv_conf_textarea');
+	var sValue = oTextarea ? oTextarea.value : '';
+	closeMpvConfEditor();
+	localStorage.setItem('mpv_conf', sValue);
+	localStorage.setItem('mpv_conf_saved', 'true');
+	if( window.m3uConnector && typeof m3uConnector.setMpvConf === 'function' ) {
+		m3uConnector.setMpvConf(sValue);
+	}
+	showStatus('Saved successfully!', 3000);
+
+}
+
+function mpvConfClearLines() {
+
+	var sButtons = '<div id="confirm_buttons"><span class="confirm-button selected" onclick="closeConfirm()">' + getLang('no') + '</span> <span class="confirm-button" onclick="mpvConfClearLinesYes()">' + getLang('yes') + '</span></div>';
+	setConfirmButtons('<div id="custom_confirm_content" class="fullscreen-popup"><h2>Clear mpv.conf</h2><p>Are you sure you want to clear all lines?</p>' + sButtons + '</div>');
+
+}
+
+function mpvConfClearLinesYes() {
+
+	closeConfirm();
+	var oTextarea = getEl('mpv_conf_textarea');
+	if( oTextarea ) { oTextarea.value = ''; }
+
+}
+
+function openMpvConfFilePicker() {
+
+	var oPicker = getEl('mpv_conf_file_picker');
+	if( oPicker ) {
+		oPicker.value = '';
+		oPicker.click();
+	}
+
+}
+
+function mpvConfFilePickerHandler( oPicker ) {
+
+	var oFile = oPicker.files[0];
+	if( !oFile ) { return false; }
+	var oReader = new FileReader();
+	oReader.readAsText(oFile);
+	oReader.onload = function() {
+		var oTextarea = getEl('mpv_conf_textarea');
+		if( oTextarea ) { oTextarea.value = oReader.result; }
+	};
+	oReader.onerror = function() {
+		showModal('Failed to import mpv.conf file.');
+	};
+
+}
+
+
 function executeAction( sAction, oNavItem ) {
 
 	switch( sAction ) {
@@ -86,107 +310,11 @@ function executeAction( sAction, oNavItem ) {
 			break;
 
 	case 'edit-mpv-conf':
-		var sMpvConf = '';
-		if( window.m3uConnector && typeof m3uConnector.getMpvConf === 'function' ) { sMpvConf = m3uConnector.getMpvConf(); }
-		if( !sMpvConf ) {
-			sMpvConf = `#cache=no
-hwdec=mediacodec-copy
-#hwdec=no
-#hwdec=auto
-#vo=gpu
-#vo=direct3d
-gpu-context=android
-demuxer-lavf-o=fflags=+nobuffer
-demuxer-readahead-secs=0
-stream-lavf-o=reconnect=1,reconnect_at_eof=1,reconnect_streamed=1,reconnect_delay_max=2
-framedrop=vo
-video-sync=audio
-scale=spline36
-cscale=spline36
-dscale=mitchell
-sigmoid-upscaling=yes
-sigmoid-center=0.75
-sigmoid-slope=6.5
-linear-upscaling=yes
-correct-downscaling=yes
-linear-downscaling=yes
-dither-depth=auto
-dither=fruit
-target-peak=auto
-hdr-compute-peak=yes
-contrast=2
-saturation=5
-gamma=0
-deband=yes
-deband-iterations=1
-deband-threshold=35
-deband-range=16
-deband-grain=0
-#demuxer-max-bytes=0
-#network-timeout=10
-#deinterlace=auto
-#tone-mapping=auto
-#gamut-mapping-mode=auto
-#profile=fast
-#profile=low-latency
-#sharpen=1`;
-		}
-		var sEditedMpvConf = prompt("Edit mpv.conf", sMpvConf);
-		if( sEditedMpvConf !== null && window.m3uConnector && typeof m3uConnector.setMpvConf === 'function' ) {
-			m3uConnector.setMpvConf(sEditedMpvConf);
-		}
+		openMpvConfEditor();
 		break;
 
 	case 'edit-mpv-conf':
-		var sMpvConf = '';
-		if( window.m3uConnector && typeof m3uConnector.getMpvConf === 'function' ) { sMpvConf = m3uConnector.getMpvConf(); }
-		if( !sMpvConf ) {
-			sMpvConf = `#cache=no
-hwdec=mediacodec-copy
-#hwdec=no
-#hwdec=auto
-#vo=gpu
-#vo=direct3d
-gpu-context=android
-demuxer-lavf-o=fflags=+nobuffer
-demuxer-readahead-secs=0
-stream-lavf-o=reconnect=1,reconnect_at_eof=1,reconnect_streamed=1,reconnect_delay_max=2
-framedrop=vo
-video-sync=audio
-scale=spline36
-cscale=spline36
-dscale=mitchell
-sigmoid-upscaling=yes
-sigmoid-center=0.75
-sigmoid-slope=6.5
-linear-upscaling=yes
-correct-downscaling=yes
-linear-downscaling=yes
-dither-depth=auto
-dither=fruit
-target-peak=auto
-hdr-compute-peak=yes
-contrast=2
-saturation=5
-gamma=0
-deband=yes
-deband-iterations=1
-deband-threshold=35
-deband-range=16
-deband-grain=0
-#demuxer-max-bytes=0
-#network-timeout=10
-#deinterlace=auto
-#tone-mapping=auto
-#gamut-mapping-mode=auto
-#profile=fast
-#profile=low-latency
-#sharpen=1`;
-		}
-		var sEditedMpvConf = prompt("Edit mpv.conf", sMpvConf);
-		if( sEditedMpvConf !== null && window.m3uConnector && typeof m3uConnector.setMpvConf === 'function' ) {
-			m3uConnector.setMpvConf(sEditedMpvConf);
-		}
+		openMpvConfEditor();
 		break;
 		case 'start-playlist-companion':
 			openPlaylistCompanion();
@@ -473,7 +601,14 @@ function openNavList( sListId, bIsPopStateEvent ) {
 			selectNavItem(oSelectedItem[0]);
 			scrollToListItem(oCurrentNavItem);
 		} else {
-			selectNavItem(oCurrentNavList[0]);
+			// Default focus on "M3U playlist from URL" for the add_playlist section
+			var oDefaultItem = oCurrentNavList[0];
+			if( sListId === 'add_playlist' ) {
+				var oUrlItem = oCurrentNav.querySelector('li[data-action="add-playlist"][data-type="url"]');
+				if( oUrlItem ) { oDefaultItem = oUrlItem; }
+			}
+			selectNavItem(oDefaultItem);
+			scrollToListItem(oCurrentNavItem);
 		}
 	}
 
@@ -882,6 +1017,16 @@ function initControls() {
 
 	document.addEventListener('keydown', function(e) {
 
+		// V40: suppress events bleeding through from welcome screen navigation
+		if( iWelcomeNavLock && Date.now() < iWelcomeNavLock ) {
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+		if( iWelcomeNavLock && Date.now() >= iWelcomeNavLock ) {
+			iWelcomeNavLock = 0;
+		}
+
 		if( !bBootComplete && sActiveControl !== 'password_confirm' ) {
 			e.preventDefault(); return false;
 		}
@@ -889,8 +1034,8 @@ function initControls() {
 		/* 13 = ENTER & OK button, 27 = ESC */
 		var k = e.keyCode;
 
-		// Disable default behaviour of arrow buttons
-		if( k == 38 || k == 40 || k == 123 ) {
+		// Disable default behaviour of arrow buttons (except Shift+Arrow for text selection)
+		if( (k == 38 || k == 40 || k == 123) && !e.shiftKey ) {
 			e.preventDefault();
 		}
 
@@ -1039,6 +1184,35 @@ function initControls() {
 				case 27:	// ESC
 				case 113:	// F2 - backbutton in android
 					closeInputEditor(); return false;
+			}
+			return true;
+		}
+
+		if( sActiveControl === 'mpv-conf-editor' ) {
+			var oTextarea = getEl('mpv_conf_textarea');
+			switch( k ) {
+				case 38: // ArrowUp - move caret one line up inside the textarea
+					if( oTextarea && document.activeElement === oTextarea && !e.shiftKey ) {
+						moveTextareaCaretLine(oTextarea, -1);
+					}
+					break;
+				case 40: // ArrowDown - move caret one line down inside the textarea
+					if( oTextarea && document.activeElement === oTextarea && !e.shiftKey ) {
+						moveTextareaCaretLine(oTextarea, 1);
+					}
+					break;
+				case 65: // Ctrl+A - Select All
+					if( e.ctrlKey && oTextarea && document.activeElement === oTextarea ) {
+						oTextarea.select();
+						e.preventDefault();
+						e.stopPropagation();
+					}
+					break;
+				case aButtons['BackButton']:
+				case 10009: // RETURN
+				case 27:	// ESC
+				case 113:	// F2 - backbutton in android
+					closeMpvConfEditor(); return false;
 			}
 			return true;
 		}
@@ -1233,3 +1407,5 @@ function initControls() {
 
 
 function updateTrackStats() {} // dummy for settings page
+
+

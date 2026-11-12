@@ -3,6 +3,7 @@
 
 # interfaces
 .implements Landroid/content/DialogInterface$OnClickListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # static fields
@@ -15,6 +16,10 @@
 .field public d0:Z
 
 .field public mpvEditText:Landroid/widget/EditText;
+
+.field public mpvClearButton:Landroid/widget/Button;
+
+.field public bClearingMpvConf:Z
 
 
 # direct methods
@@ -1127,6 +1132,34 @@
 .method public onClick(Landroid/content/DialogInterface;I)V
     .locals 2
 
+    iget-boolean v0, p0, Lde/herber_edevelopment/m3uiptv/MainActivity;->bClearingMpvConf:Z
+
+    if-eqz v0, :not_clearing
+
+    const/4 v0, -0x1
+
+    if-eq p2, v0, :do_clear
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lde/herber_edevelopment/m3uiptv/MainActivity;->bClearingMpvConf:Z
+
+    goto :goto_0
+
+    :do_clear
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lde/herber_edevelopment/m3uiptv/MainActivity;->bClearingMpvConf:Z
+
+    iget-object v0, p0, Lde/herber_edevelopment/m3uiptv/MainActivity;->mpvEditText:Landroid/widget/EditText;
+
+    const-string v1, ""
+
+    invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
+
+    goto :goto_0
+
+    :not_clearing
     iget-object v0, p0, Lde/herber_edevelopment/m3uiptv/MainActivity;->mpvEditText:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -1154,6 +1187,51 @@
 
     :cond_1
     :goto_0
+    return-void
+.end method
+
+.method public onClick(Landroid/view/View;)V
+    .locals 2
+
+    iget-object v0, p0, Lde/herber_edevelopment/m3uiptv/MainActivity;->mpvClearButton:Landroid/widget/Button;
+
+    if-ne p1, v0, :cond_0
+
+    const/4 v0, 0x1
+
+    iput-boolean v0, p0, Lde/herber_edevelopment/m3uiptv/MainActivity;->bClearingMpvConf:Z
+
+    new-instance v0, Landroid/app/AlertDialog$Builder;
+
+    invoke-direct {v0, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
+
+    const-string v1, "Clear mpv.conf"
+
+    invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
+
+    const-string v1, "Are you sure you want to clear all lines?"
+
+    invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
+
+    const-string v1, "NO"
+
+    invoke-virtual {v0, v1, p0}, Landroid/app/AlertDialog$Builder;->setNegativeButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
+
+    const-string v1, "YES"
+
+    invoke-virtual {v0, v1, p0}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
+
+    invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
+
+    move-result-object v1
+
+    const/4 v2, -0x2
+
+    invoke-virtual {v1, v2}, Landroid/app/AlertDialog;->getButton(I)Landroid/widget/Button;
+
+    invoke-virtual {v1}, Ljava/lang/Object;->requestFocus()Z
+
+    :cond_0
     return-void
 .end method
 
@@ -1443,7 +1521,7 @@
 .end method
 
 .method public showMpvConfDialog()V
-    .locals 7
+    .locals 8
 
     new-instance v0, Landroid/widget/EditText;
 
@@ -1494,31 +1572,59 @@
     :cond_0
     invoke-virtual {v0, v2}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    new-instance v1, Landroid/app/AlertDialog$Builder;
+    # Create LinearLayout container for EditText + Clear Lines button
+    new-instance v1, Landroid/widget/LinearLayout;
 
-    invoke-direct {v1, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
+    invoke-direct {v1, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    const-string v2, "Edit mpv.conf"
+    const/4 v2, 0x0
 
-    invoke-virtual {v1, v2}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
+    invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    invoke-virtual {v1, v0}, Landroid/app/AlertDialog$Builder;->setView(Landroid/view/View;)Landroid/app/AlertDialog$Builder;
+    # Add EditText to LinearLayout
+    invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    const-string v2, "Save"
+    # Create Clear Lines button
+    new-instance v2, Landroid/widget/Button;
 
-    invoke-virtual {v1, v2, p0}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
+    invoke-direct {v2, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
 
-    const-string v2, "Cancel"
+    const-string v3, "Clear Lines"
 
-    const/4 v3, 0x0
+    invoke-virtual {v2, v3}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
 
-    invoke-virtual {v1, v2, v3}, Landroid/app/AlertDialog$Builder;->setNegativeButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
+    iput-object v2, p0, Lde/herber_edevelopment/m3uiptv/MainActivity;->mpvClearButton:Landroid/widget/Button;
 
-    const-string v2, "Import File"
+    invoke-virtual {v2, p0}, Landroid/widget/Button;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    invoke-virtual {v1, v2, p0}, Landroid/app/AlertDialog$Builder;->setNeutralButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
+    # Add Clear Lines button to LinearLayout
+    invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    invoke-virtual {v1}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
+    new-instance v3, Landroid/app/AlertDialog$Builder;
+
+    invoke-direct {v3, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
+
+    const-string v4, "Edit mpv.conf"
+
+    invoke-virtual {v3, v4}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
+
+    invoke-virtual {v3, v1}, Landroid/app/AlertDialog$Builder;->setView(Landroid/view/View;)Landroid/app/AlertDialog$Builder;
+
+    const-string v4, "Save"
+
+    invoke-virtual {v3, v4, p0}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
+
+    const-string v4, "Cancel"
+
+    const/4 v5, 0x0
+
+    invoke-virtual {v3, v4, v5}, Landroid/app/AlertDialog$Builder;->setNegativeButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
+
+    const-string v4, "Import File"
+
+    invoke-virtual {v3, v4, p0}, Landroid/app/AlertDialog$Builder;->setNeutralButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
+
+    invoke-virtual {v3}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     return-void
 .end method

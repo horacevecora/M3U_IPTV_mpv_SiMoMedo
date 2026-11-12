@@ -11,7 +11,8 @@
 var bDownloadRunning = false, oActivePlaylistWorker = false,
 oPlaylistDownloadStatus = getEl('playlist_download_status'), oPlaylistNav = getEl('playlists_nav'),
 iCurrentEditId = 0, iHighestPlaylistId = 0, bIsNewPlaylist = false, oCurrentEditPlaylist = {}, aLoadedPlaylists = {},
-iPlayListCount = 0, iPlaylistChannelCount = 0, iCurrentPmStep = 0, oPmManager = getEl('playlist_manager'), oPmManagerForm = getEl('playlist_manager_form');
+iPlayListCount = 0, iPlaylistChannelCount = 0, iCurrentPmStep = 0, oPmManager = getEl('playlist_manager'), oPmManagerForm = getEl('playlist_manager_form'),
+oPlaylistNavLoadingItem = null;
 
 // Playlist Manager fields
 var oPmM3uUrl = getEl('pm_m3u_url'), oPmEpgUrl = getEl('pm_epg_url'), oPmReloadPlaylist = getEl('pm_reload_playlist_start'),
@@ -294,7 +295,13 @@ function loadPlaylists( sOnSuccess, sOnFailure ) {
 
 	}
 
+	// Fallback: no localStorage data and no DB access - still proceed with empty playlist
+	if( typeof(sOnSuccess) === 'function' ) {
+		sOnSuccess(0);
+	}
+
 }
+
 
 
 var iPlaylistQueueTimer = false;
@@ -484,6 +491,9 @@ function openPlaylistManagerForm( iStep ) {
 
 
 function openPlaylistManager( sId, sType ) {
+
+	// Ensure loading spinner is dismissed before opening the Add Playlist dialog
+	document.body.classList.remove('booting');
 
 	if( sId === 'new' && iPlayListCount && !isPremiumAccessAllowed() && !deleteDemoPlaylist() ) {
 		openPremiumHint('license-playlist-add-fail');
@@ -1350,6 +1360,10 @@ function extractCatchupData( sLine ) {
 function playlistDownLoadFinished() {
 	bDownloadRunning = false;
 	oPmManager.classList.remove('loading');
+	if( oPlaylistNavLoadingItem ) {
+		oPlaylistNavLoadingItem.classList.remove('loading');
+		oPlaylistNavLoadingItem = null;
+	}
 }
 
 
@@ -1390,6 +1404,7 @@ function downloadPlaylistManager( oPlaylist, sLocalData, sCallback, sCallbackErr
 		setPlaylistToQueue(oPlaylist, false);
 
 		oNavItem ? oNavItem.classList.add('loading') : null;
+		oPlaylistNavLoadingItem = oNavItem;
 
 		oPlaylist.status = 'LOADING';
 		if( oPlaylist.error ) {
@@ -1505,6 +1520,11 @@ function downloadPlaylistManager( oPlaylist, sLocalData, sCallback, sCallbackErr
 						break;
 					case 'ERROR HTTP BLOCKED':
 						showModal("HTTP source blocked by browser. To fix that, please follow this instructions: <a href='https://m3u-ip.tv/faq/#browser_http_fix' target='_blank'>https://m3u-ip.tv/faq/#browser_http_fix</a>");
+						abortPlaylistDownload();
+						oPlaylist.status = 'ERROR'; oPlaylist.error = 'HTTP source blocked';
+						if( !bIsNewPlaylist ) { saveCurrentPlaylist(oPlaylist); }
+						updatePlaylistDownloadStatus(oPlaylist.error);
+						break;
 					case 'ERROR NOT VALID EXTM3U':
 					case 'ERROR NOT VALID':
 						abortPlaylistDownload();
@@ -1513,6 +1533,7 @@ function downloadPlaylistManager( oPlaylist, sLocalData, sCallback, sCallbackErr
 						updatePlaylistDownloadStatus(oPlaylist.error);
 						break;
 					default:
+						abortPlaylistDownload();
 						console.log("should not happen: " + e.message, e);
 						oPlaylist.status = 'ERROR'; oPlaylist.error = e.message;
 						//saveCurrentPlaylist(oPlaylist); // we don't want to save this to DB
@@ -1524,6 +1545,7 @@ function downloadPlaylistManager( oPlaylist, sLocalData, sCallback, sCallbackErr
 		};
 
 		oActivePlaylistWorker.onerror = function(e) {
+			playlistDownLoadFinished();
 			bDownloadRunning = false;
 			oPlaylist.status = 'ERROR'; oPlaylist.error = e.message;
 			if( !bIsNewPlaylist ) { saveCurrentPlaylist(oPlaylist); }

@@ -2414,9 +2414,17 @@ function initControls() {
 				break;
 
 			case aButtons['KeyRight']:
-				showChannelSettings();
+				if( AppSettings.getSetting('choose-player', 'app_internal') === 'mpv_internal' ) {
+					// MPV Player mode: jump directly to live edge / end of stream on a single press
+					if( typeof m3uConnector !== 'undefined' && m3uConnector && typeof m3uConnector.jumpToTime === 'function' ) {
+						m3uConnector.jumpToTime(999999);
+					}
+				} else {
+					showChannelSettings();
+				}
 				break;
 			case aButtons['KeyLeft']:
+				// Open/show channel list (both Built-in and MPV Player modes)
 				showNav();
 				break;
 

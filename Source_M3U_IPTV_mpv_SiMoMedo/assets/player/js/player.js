@@ -1402,6 +1402,11 @@ function playChannelUrl() {
 		if( typeof m3uConnector !== 'undefined' && m3uConnector && typeof m3uConnector.playMpvVideo === 'function' ) {
 			m3uConnector.playMpvVideo(sPlayingUrl);
 		}
+		localStorage.setItem('iCurrentChannel', iCurrentChannel);
+		if( oCurrentPlaylist ) {
+			oCurrentPlaylist.lastChannel = iCurrentChannel;
+			saveCurrentPlaylist(oCurrentPlaylist);
+		}
 		bPlaying = true;
 		if( getEl('playpause') ) {
 			changeButtonState('playpause');

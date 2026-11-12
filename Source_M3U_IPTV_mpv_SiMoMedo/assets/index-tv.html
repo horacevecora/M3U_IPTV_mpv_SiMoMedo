@@ -125,11 +125,37 @@ if( localStorage.getItem('bLoadV2') === "1" ) {
 
 	document.body.id = 'body';
 
+	// V36: dismiss the loading spinner immediately when "Add playlist" is clicked
+	// and open the Add Playlist form without waiting for DB / network locks.
+	function hideLoading() {
+		document.body.classList.remove('booting');
+		var oBootLoader = document.getElementById('boot_loader');
+		if( oBootLoader ) { oBootLoader.style.display = 'none'; }
+	}
+
+	var oAddPlaylistBtn = document.getElementById('add_playlist');
+	if( oAddPlaylistBtn ) {
+		oAddPlaylistBtn.addEventListener('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			if( document.activeElement ) { document.activeElement.blur(); }
+			document.body.classList.remove('booting');
+			hideLoading();
+			// V41: navigation lock to prevent event bleed-through into settings view
+			sessionStorage.setItem('welcomeNavLock', '1');
+			setTimeout(function() { sessionStorage.removeItem('welcomeNavLock'); }, 500);
+			window.location.href = 'settings/index.html#add_playlist';
+		});
+	}
+
 	var bConfirmBoxOpened = false;
 	document.addEventListener('keydown', function(e) {
 		var k = e.keyCode;
 		switch( k ) {
 			case 13:
+				e.preventDefault();
+				e.stopPropagation();
+				if( document.activeElement ) { document.activeElement.blur(); }
 				document.body.id = 'loader';
 				document.getElementById('add_playlist').click();
 				break;
