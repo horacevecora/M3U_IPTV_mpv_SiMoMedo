@@ -3,12 +3,11 @@
 Custom M3U IPTV APK Android to add mpv player internal & External player featuring ultra-fast dead stream failover (VLC speed), dynamic TCP timeout settings, low-latency buffering, and fixed mpv.conf import/export support.
 
 >> Code for Downloader App:
-1713450
+7292608
 
 
 >> Download Direct:
-http://www.mediafire.com/file/l7szjo5edtrg0s5/M3U_IPTV_mpv_SiMoMedo.apk
-
+https://www.mediafire.com/file/26nudos7q2ydn04/M3U_IPTV_mpv_SiMoMedo.apk
 
 
 ## Features
