@@ -1267,7 +1267,7 @@
     .line 173
     .line 174
     .line 175
-    invoke-static {}, Lis/xyz/mpv/MPVView;->cyclePause()V
+    invoke-virtual {p0}, Lis/xyz/mpv/MPVActivity;->toggleControls()V
 
     .line 176
     .line 177
@@ -1276,12 +1276,7 @@
 
     .line 179
     :cond_b
-    invoke-virtual {p0}, Lis/xyz/mpv/MPVActivity;->getPlayer()Lis/xyz/mpv/MPVView;
-
-    .line 180
-    .line 181
-    .line 182
-    invoke-static {}, Lis/xyz/mpv/MPVView;->cyclePause()V
+    invoke-virtual {p0}, Lis/xyz/mpv/MPVActivity;->toggleControls()V
 
     .line 183
     .line 184
@@ -2156,6 +2151,10 @@
     .line 78
     :cond_6
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getAction()I
+
+    .line 77
+    .line 78
+    move-object v7, p1
 
     .line 79
     .line 80
@@ -7775,11 +7774,6 @@
     const-string v4, "tls-ca-file"
 
     invoke-virtual {v7, v4, v3}, Lis/xyz/mpv/MPVLib;->setOptionString(Ljava/lang/String;Ljava/lang/String;)I
-
-    .line 239
-    const-string v3, "input-default-bindings"
-
-    invoke-virtual {v7, v3, v8}, Lis/xyz/mpv/MPVLib;->setOptionString(Ljava/lang/String;Ljava/lang/String;)I
 
     .line 240
     sget v3, Landroid/os/Build$VERSION;->SDK_INT:I

@@ -17,16 +17,15 @@ iCurrentPlaylistId = 0, bModalOpened = false, bStatusOpened = false,
 oPlaylistManager = getEl('playlist_manager'), oCurrentPmForm = false,
 aCurrentFields = false, iCurrentFieldIndex = 0, iCurrentPmStep = 0,
 aControlButtons = false, iCurrentControlButtonIndex = 2,
-
-// V40: lock to suppress keydown/click events bleeding through from welcome screen
-// navigation when opening settings/#add_playlist
 iWelcomeNavLock = 0;
 
-// Initialize welcome navigation lock from sessionStorage (set by welcome screen before navigating)
+// V52: welcome navigation lock - suppress events bleeding through from welcome screen
 if( sessionStorage.getItem('welcomeNavLock') ) {
 	sessionStorage.removeItem('welcomeNavLock');
-	iWelcomeNavLock = Date.now() + 500; // suppress events for 500ms
+	iWelcomeNavLock = Date.now() + 500;
 }
+
+var oLongPressTimeout = false, bButtonIsPressed = false, fShortEventFunction = false, sSmartControlActive = false;
 
 function doKey( iKeyCode ) {
 	document.dispatchEvent(new KeyboardEvent('keydown', {'keyCode': iKeyCode}));
@@ -129,8 +128,6 @@ function closeMpvConfEditor() {
 
 }
 
-// Move caret one line up/down inside a multiline textarea (same column when possible).
-// Used for D-pad Up/Down navigation while editing mpv.conf.
 function moveTextareaCaretLine( oTextarea, iDir ) {
 
 	if( !oTextarea || typeof oTextarea.selectionStart !== 'number' ) { return; }
@@ -171,7 +168,7 @@ function moveTextareaCaretLine( oTextarea, iDir ) {
 
 	oTextarea.setSelectionRange(iNewPos, iNewPos);
 
-	// V42: Auto-scroll caret line into view when text exceeds visible height
+	// Auto-scroll caret line into view when text exceeds visible height
 	var aLines = sValue.split('\n'), iLineCount = aLines.length || 1,
 		iLineHeight = oTextarea.scrollHeight / iLineCount,
 		iCharOffset = 0, iTargetLineIndex = 0;
@@ -1191,14 +1188,16 @@ function initControls() {
 		if( sActiveControl === 'mpv-conf-editor' ) {
 			var oTextarea = getEl('mpv_conf_textarea');
 			switch( k ) {
-				case 38: // ArrowUp - move caret one line up inside the textarea
+				case 38: // ArrowUp - move caret one line up
 					if( oTextarea && document.activeElement === oTextarea && !e.shiftKey ) {
 						moveTextareaCaretLine(oTextarea, -1);
+						e.preventDefault();
 					}
 					break;
-				case 40: // ArrowDown - move caret one line down inside the textarea
+				case 40: // ArrowDown - move caret one line down
 					if( oTextarea && document.activeElement === oTextarea && !e.shiftKey ) {
 						moveTextareaCaretLine(oTextarea, 1);
+						e.preventDefault();
 					}
 					break;
 				case 65: // Ctrl+A - Select All

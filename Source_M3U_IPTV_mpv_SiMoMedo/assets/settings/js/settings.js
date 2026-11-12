@@ -854,9 +854,8 @@ function loadEverything() {
 			sCurrentNavId = window.location.hash.replace('#', '');
 		}
 
-		// V41: Strict retention of add_playlist_nav when settings hash is #add_playlist
-		// Prevent any fallback to main_nav / root settings list
-		if( sCurrentNavId === 'add_playlist' ) {
+		// V52: strict retention of #add_playlist - prevent any fallback to main_nav
+		if( sCurrentNavId === 'add_playlist' || window.location.hash.indexOf('add_playlist') > -1 ) {
 			sCurrentNavId = 'add_playlist';
 		}
 	} catch( e ) {
@@ -874,7 +873,7 @@ function loadEverything() {
 			}
 
 			document.body.classList.remove('booting');
-			// V41: Force add_playlist navigation, prevent main_nav fallback
+			// V52: force add_playlist navigation
 			if( sCurrentNavId === 'add_playlist' || window.location.hash.indexOf('add_playlist') > -1 ) {
 				sCurrentNavId = 'add_playlist';
 			}
@@ -882,7 +881,7 @@ function loadEverything() {
 			bBootComplete = true;
 		}, function() { // playlist load failure - still proceed to show UI
 			document.body.classList.remove('booting');
-			// V41: Force add_playlist navigation on failure path too
+			// V52: force add_playlist navigation on failure path too
 			if( sCurrentNavId === 'add_playlist' || window.location.hash.indexOf('add_playlist') > -1 ) {
 				sCurrentNavId = 'add_playlist';
 			}
@@ -892,7 +891,7 @@ function loadEverything() {
 	}, function(oEv) { // DB failure - still proceed to show UI
 		console.log("Error boot DB");
 		document.body.classList.remove('booting');
-		// V41: Force add_playlist navigation on DB failure too
+		// V52: force add_playlist navigation on DB failure too
 		if( sCurrentNavId === 'add_playlist' || window.location.hash.indexOf('add_playlist') > -1 ) {
 			sCurrentNavId = 'add_playlist';
 		}

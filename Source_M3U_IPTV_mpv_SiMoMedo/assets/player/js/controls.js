@@ -111,7 +111,6 @@ function hideControls() {
 	}
 }
 
-
 function toggleUi() {
     if( bUiOpened ) {
         hideUi();

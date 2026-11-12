@@ -141,7 +141,6 @@ if( localStorage.getItem('bLoadV2') === "1" ) {
 			if( document.activeElement ) { document.activeElement.blur(); }
 			document.body.classList.remove('booting');
 			hideLoading();
-			// V41: navigation lock to prevent event bleed-through into settings view
 			sessionStorage.setItem('welcomeNavLock', '1');
 			setTimeout(function() { sessionStorage.removeItem('welcomeNavLock'); }, 500);
 			window.location.href = 'settings/index.html#add_playlist';
